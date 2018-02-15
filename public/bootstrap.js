@@ -58,10 +58,31 @@ function boot()
         console.log("Worker is NOT verified");
         dispatch(true);
     });
+    
+    //INSERTION
+    /*
+    var parameters = mturk_parameters();
+    console.log("ADD TRACKS CALL");
+    server_request("addtracks", [parameters["id"]], function() {
+        console.log("FINISHED ADDING TRACKS (?? tracks added)");
+    });
+    */
+    //END INSERTION
 }
 
 function loadingscreen(job)
-{
+{    
+    // INSERTION
+    /*
+    var parameters = mturk_parameters();
+    console.log("PARAMETERS");
+    console.log(parameters);
+    console.log("ID: " + parameters["id"]);
+    //server_request("addtracks", [parameters["id"], "/media/leo/24DDF7874B2D4C94/FLASH_ALPHA/404/test/404/mse0.1_track0.01_output.txt"]);
+    */
+    // END INSERTION
+    
+    
     var ls = $("<div id='loadingscreen'></div>");
     ls.append("<div id='loadingscreeninstructions' class='button'>Show " +
         "Instructions</div>");

@@ -10,7 +10,7 @@ function Job(data)
     this.skip = null; 
     this.perobject = null;
     this.completion = null;
-    this.blowradius = null;
+    this.blowradius = 5;// null;
     this.thisid = null;
     this.labels = null;
     this.homography = null;
@@ -20,7 +20,7 @@ function Job(data)
     this.bidirectionaltrackers = [];
     this.multiobjecttrackers = [];
     this.pointmode = null;
-
+    this.attributes = null;
     this.frameurl = function(i)
     {
         folder1 = parseInt(Math.floor(i / 100));
@@ -41,7 +41,7 @@ function job_import(data)
     job.skip = parseInt(data["skip"]);
     job.perobject = parseFloat(data["perobject"]);
     job.completion = parseFloat(data["completion"]);
-    job.blowradius = parseInt(data["blowradius"]);
+    job.blowradius = 5;//parseInt(data["blowradius"]);
     job.jobid = parseInt(data["jobid"]);
     job.labels = data["labels"];
     job.attributes = data["attributes"];
@@ -65,6 +65,7 @@ function job_import(data)
     console.log("  Blow Radius: " + job.blowradius);
     console.log("  Training: " + job.training);
     console.log("  Job ID: " + job.jobid);
+    console.log("HERE!!!!");
     console.log("  Labels: ");
     for (var i in job.labels)
     {
@@ -78,6 +79,7 @@ function job_import(data)
             console.log("    " + job.labels[i] + " = " + job.attributes[i][j])
         }
     }
+    console.log(data);
 
     return job;
 }

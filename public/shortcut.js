@@ -6,10 +6,15 @@ function ShortcutManager()
     this.shortcuts = {};
     
     this.addshortcut = function(key, callback) {
+        //log.console("ADDING SHORTCUT");
         if (typeof key === 'number') {
+            //log.console("KEY: " + key);
             key = [key];
+            
         }
+        
         for (i in key) {
+            //log.console("SHORCUT KEY: " + i);
             if (!(key[i] in this.shortcuts)) {
                 this.shortcuts[key[i]] = [];
             }
@@ -22,10 +27,11 @@ function ShortcutManager()
 
         var keycode = e.keyCode ? e.keyCode : e.which;
         eventlog("keyboard", "Key press: " + keycode);
-
+        console.log(me.shortcuts);
         if (keycode in me.shortcuts) {
-            event.preventDefault();
+            e.preventDefault();
             for (var i in me.shortcuts[keycode]) {
+                console.log(me.shortcuts[keycode][i]);
                 me.shortcuts[keycode][i]();
             }
         }

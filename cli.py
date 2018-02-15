@@ -128,8 +128,8 @@ class load(LoadCommand):
         parser.add_argument("slug")
         parser.add_argument("location")
         parser.add_argument("labels", nargs="+")
-        parser.add_argument("--length", type=int, default = 300)
-        parser.add_argument("--overlap", type=int, default = 20)
+        parser.add_argument("--length", type=int, default = 900) #300
+        parser.add_argument("--overlap", type=int, default = 1) #20
         parser.add_argument("--skip", type=int, default = 0)
         parser.add_argument("--per-object-bonus", type=float)
         parser.add_argument("--completion-bonus", type=float)

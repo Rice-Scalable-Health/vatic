@@ -409,6 +409,7 @@ function TrackObjectUI(button, container, copypastecontainer, videoframe, job, p
         //this.instructions.fadeOut();
 
         this.currentcolor = this.pickcolor();
+        console.log("CURRENT COLOR: " + this.currentcolor);
         var obj = new TrackObject(this.job,
                                   this.player,
                                   this.activecontainer,
@@ -547,6 +548,7 @@ function TrackObject(job, player, activecontainer, donecontainer, color, copypas
     this.track = null;
     this.tracks = null;
     this.label = null;
+    this.trueid = null; //needed to appropriately update the radio buttons after the id/label has changed
 
     this.onready = [];
     this.onfolddown = [];
@@ -580,6 +582,12 @@ function TrackObject(job, player, activecontainer, donecontainer, color, copypas
     this.tooltiptimer = null;
 
     this.objectselected = null;
+    
+    this.newcolorset = [["#00ff00", "#b3ffb3", "#99ff99"],
+                        ["#ff0000", "#ffb3b3", "#ff9999"],
+                        //["#0000ff", "#b3b3ff", "#9999ff"],
+                        ["#00ffff", "b3ffff", "99ffff"],
+                        ["cc0099", "ffb3ec", "cc99e6"]];
 
     this.initialize = function(id, track, tracks)
     {
@@ -725,8 +733,40 @@ function TrackObject(job, player, activecontainer, donecontainer, color, copypas
     }
 
     this.setupid = function() {
+        
         me.track.id = me.id;
+        this.trueid = me.id;
 
+        if (me.id <= 2 && me.id >= 0)
+        {
+            console.log(me.id)
+            this.color = this.newcolorset[me.id];
+            this.track.color = this.color;
+            this.handle.css({
+                'background-color': this.color[2],
+                'border-color': this.color[2]});
+            this.track.handle.children(".circle").css({"background-color": this.color[0],
+                                    "border-color": this.color[0]});
+            console.log("This track's handle");
+            console.log(this.track.handle.children(".circle"));
+            console.log("SWITCHED TO COLOR: " + this.color + " for ID " + me.id);
+        }
+        else
+        {
+            console.log(me.id)
+            this.color = this.newcolorset[3];
+            this.track.color = this.color;
+            this.handle.css({
+                'background-color': this.color[2],
+                'border-color': this.color[2]});
+            this.track.handle.children(".circle").css({"background-color": this.color[0],
+                                    "border-color": this.color[0]});
+            console.log("This track's handle");
+            console.log(this.track.handle.children(".circle"));
+            console.log("DEFAULT COLOR");
+        }
+        
+        console.log("SWITCHED TO COLOR: " + this.color);
         var textbox = $("#trackid"+this.id);
         textbox.val(this.id);
         textbox.on('input propertychange paste', function() {
@@ -734,7 +774,32 @@ function TrackObject(job, player, activecontainer, donecontainer, color, copypas
             me.track.id = me.id;
             me.setupheader();
             me.updateboxtext();
+            
+            if (me.id <= 2 && me.id >= 0)
+            {
+                console.log(me.id)
+                me.color = me.newcolorset[me.id];
+                me.track.color = me.color;
+                me.handle.css({
+                    'background-color': me.color[2],
+                    'border-color': me.color[2]});
+                me.track.handle.children(".circle").css({"background-color": me.color[0], "border-color": me.color[0]});
+                console.log("SWITCHED TO COLOR: " + me.color + " for ID " + me.id);
+            }
+            else
+            {
+                console.log(me.id)
+                me.color = me.newcolorset[3];
+                me.track.color = me.color;
+                me.handle.css({
+                    'background-color': me.color[2],
+                    'border-color': me.color[2]});
+                me.track.handle.children(".circle").css({"background-color": me.color[0], "border-color": me.color[0]});
+                console.log("DEFAULT COLOR");
+            }
         });
+
+        
     }
 
     this.setupheader = function() {
@@ -793,13 +858,23 @@ function TrackObject(job, player, activecontainer, donecontainer, color, copypas
     this.updateboxtext = function()
     {
         if (this.track.istracking()) {
+            //INSERTION
+            /*
+            console.log("setting visible");
+            this.track.handle.children(".boundingboxtext").css({
+                "border-color": this.track.color,
+                "visibility" : "visible"
+                //"color": this.color
+                });
+            */
+            //END INSERTION
             var str = "<strong>Tracking</strong>";
             this.track.settext(str);
             return;
         }
 
-        var str = "<strong>" + this.job.labels[this.label] + " " + (this.id) + "</strong>";
-
+        //var str = "<strong>" + this.job.labels[this.label] + " " + (this.id) + "</strong>";
+        var str = "";
         var count = 0;
         for (var i in this.job.attributes[this.track.label])
         {
@@ -810,7 +885,6 @@ function TrackObject(job, player, activecontainer, donecontainer, color, copypas
                 count++;
             }
         }
-
         this.track.settext(str);
 
         if ($("#annotateoptionshideboxtext").attr("checked"))
@@ -826,8 +900,8 @@ function TrackObject(job, player, activecontainer, donecontainer, color, copypas
 
     this.setupdetails = function()
     {
-        this.details.append("<input type='checkbox' id='trackobject" + this.id + "lost'> <label for='trackobject" + this.id + "lost'>Outside of view frame</label><br>");
-        this.details.append("<input type='checkbox' id='trackobject" + this.id + "occluded'> <label for='trackobject" + this.id + "occluded'>Occluded or obstructed</label><br>");
+        //this.details.append("<input type='checkbox' id='trackobject" + this.id + "lost'> <label for='trackobject" + this.id + "lost'>Outside of view frame</label><br>");
+        //this.details.append("<input type='checkbox' id='trackobject" + this.id + "occluded'> <label for='trackobject" + this.id + "occluded'>Occluded or obstructed</label><br>");
         this.trackingdetails = $("<div style='float:left'></div>").appendTo(this.details);
         this.trackingdetails.append("<div style='float:left;'>Tracking: </div>");
         //this.trackingdetails.append("<div style='float:left; cursor:pointer;'>" + 
@@ -854,8 +928,10 @@ function TrackObject(job, player, activecontainer, donecontainer, color, copypas
 
         for (var i in this.job.attributes[this.track.label])
         {
-            this.details.append("<input type='checkbox' id='trackobject" + this.id + "attribute" + i + "'> <label for='trackobject" + this.id + "attribute" + i +"'>" + this.job.attributes[this.track.label][i] + "</label><br>");
-
+            //INSERTION - changed "type='checkbox'" to "type='radio'"
+            this.details.append("<input type='radio' id='trackobject" + this.id + "attribute" + i + "' name='track" + this.id + "'> <label for='trackobject" + this.id + "attribute" + i +"'>" + this.job.attributes[this.track.label][i] + "</label><br>");
+            // END INSERTION
+            
             // create a closure on attributeid
             (function(attributeid) {
 
@@ -863,7 +939,22 @@ function TrackObject(job, player, activecontainer, donecontainer, color, copypas
                     me.player.pause();
 
                     var checked = $(this).attr("checked");
-                    me.track.setattribute(attributeid, checked ? true : false);
+                    //me.track.setattribute(attributeid, checked ? true : false);
+                    // INSERTION
+                    if (checked)
+                    {
+                        for (var j in me.job.attributes[me.track.label])
+                        {
+                            if (j != attributeid)
+                            {
+                                me.track.setattribute(j, false);
+                            }
+                        }
+                    }
+                    
+                    me.track.setattribute(attributeid, true);
+                    // END INSERTION
+
                     me.track.notifyupdate();
 
                     me.updateboxtext();
@@ -992,18 +1083,96 @@ function TrackObject(job, player, activecontainer, donecontainer, color, copypas
         var e = this.track.estimate(this.player.frame);
         $("#trackobject" + this.id + "lost").attr("checked", e.outside);
         $("#trackobject" + this.id + "occluded").attr("checked", e.occluded);
-
+        
+        //INSERTION
+       // var ind=-1;
+        //var total = 0;
+        //var temp;
+        //END INSERTION
         for (var i in this.job.attributes[this.track.label])
-        {
+        {   
+            //console.log("Attribute order: " + i);
+            //total += 1;
+            //temp = i;
             if (!this.track.estimateattribute(i, this.player.frame))
             {
-                $("#trackobject" + this.id + "attribute" + i).attr("checked", false);
+                //console.log(this.track.estimateattribute(i, this.player.frame);
+                $("#trackobject" + this.trueid + "attribute" + i).attr("checked", false);
+                /*
+                if (this.id == 0)
+                {
+                    console.log("attribute " + i + " set UNCHECKED.");
+                }
+                */
             }
             else
             {
-                $("#trackobject" + this.id + "attribute" + i).attr("checked", true);
+                //INSERTION
+                //ind = i;
+                //END INSERTION
+                
+                $("#trackobject" + this.trueid + "attribute" + i).attr("checked", true);
+                
+                var tag = this.job.attributes[this.track.label][i];
+                if (tag == "Gaze" || tag == "Uncertain")
+                {
+                    //INSERTION
+        
+                    console.log("setting visible");
+                    this.track.handle.children(".boundingboxtext").css({
+                        "border-color": this.track.color,
+                        "visibility" : "visible"
+                        //"color": this.color
+                    });
+            
+                //END INSERTION
+                }
+                else
+                {
+                    console.log("setting hidden");
+                    this.track.handle.children(".boundingboxtext").css({
+                        "border-color": this.track.color,
+                        "visibility" : "hidden"
+                        //"color": this.color
+                    });
+                }
+                // NEED TO FIGURE OUT HOW TO ACCESS THE ARRTIBUTE like this:
+                /*
+                console.log("  Attributes:");
+                for (var i in job.attributes)
+                {
+                    for (var j in job.attributes[i])
+                    {
+                        console.log("    " + job.labels[i] + " = " + job.attributes[i][j])
+                    }
+                }
+                */                
+                //console.log(this.track.attributejournals[this.track.label]);
+                
+                /*
+                if (this.id == 0)
+                {
+                    console.log("attribute " + i + " set CHECKED.");
+                }
+                */
             }
         }
+        
+        //console.log("THERE ARE " + total + " ATTRIBUTES FOR TRACK " + this.id);
+        //console.log(this.track.estimateattribute(this.job.attributes[this.track.label][0], this.player.frame);
+        //INSERTION
+        /*
+        for (var i in this.job.attributes[this.track.label])
+        {
+            if (i != ind)
+            {
+                $("#trackobject" + this.id + "attribute" + i).attr("checked", false);
+            }
+        }
+        */
+        //END INSERTION
+        
+        
     }
 
     this.toggletooltip = function(onscreen)

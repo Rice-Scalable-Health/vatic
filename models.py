@@ -259,7 +259,8 @@ class Path(turkic.database.Base):
     @classmethod 
     def bindattributes(cls, attributes, boxes):
         attributes = sorted(attributes, key = lambda x: x.frame)
-
+        #print("Attributes!")
+        #print(attributes)
         byid = {}
         for attribute in attributes:
             if attribute.attributeid not in byid:

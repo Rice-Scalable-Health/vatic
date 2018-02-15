@@ -173,6 +173,7 @@ function BoxDrawer(container, defaultsize, oneclick)
             this.handle = $('<div class="boundingbox"><div>');
             this.updatedrawing(xc, yc);
             this.container.append(this.handle);
+            
 
             for (var i in this.onstartdraw)
             {
@@ -192,7 +193,7 @@ function BoxDrawer(container, defaultsize, oneclick)
             console.log("Finishing drawing");
 
             var position = this.calculateposition(xc, yc);
-
+            
             // call callbacks
             for (var i in this.onstopdraw)
             {
@@ -203,6 +204,7 @@ function BoxDrawer(container, defaultsize, oneclick)
             if (this.handle) this.handle.remove();
             this.startx = 0;
             this.starty = 0;
+            
         }
     }
     
@@ -276,7 +278,10 @@ function TrackCollection(player, topviewplayer, job)
     this.job = job;
     this.tracks = [];
     this.autotrack = false;
-    this.forwardtracker = null;
+    // INSERTION
+    this.forwardtracker = "Flash Tracking";
+    //this.forwardtracker = null;
+    // END INSERTION
     this.bidirectionaltracker = null;
 
     this.onnewobject = []; 
@@ -474,7 +479,8 @@ function Track(tracks, player, topviewplayer, color, position, autotrack, forwar
     var me = this;
 
     this.tracks = tracks;
-    this.journal = new Journal(player.job.start, player.job.blowradius);
+    //CHANGED
+    this.journal = new Journal(player.job.start, 5);//player.job.blowradius);
     this.attributejournals = {};
     this.label = null;
     this.id = null;
@@ -488,7 +494,10 @@ function Track(tracks, player, topviewplayer, color, position, autotrack, forwar
     this.deleted = false;
     this.offset = 0;
     this.autotrack = autotrack;
-    this.autotrackmanager = new AutoTrackManager(this.tracks, this, forwardtracker, bidirectionaltracker);
+    // INSERTION
+    this.autotrackmanager = new AutoTrackManager(this.tracks, this, "Flash Tracking", null);//bidirectionaltracker);
+    //this.autotrackmanager = new AutoTrackManager(this.tracks, this, forwardtracker, bidirectionaltracker);
+    // END INSERTION
 
     this.onmouseover = [];
     this.onmouseout = [];
@@ -674,6 +683,7 @@ function Track(tracks, player, topviewplayer, color, position, autotrack, forwar
 
     this.notifystarttracking = function()
     {
+
         for (var i in this.onstarttracking)
         {
             this.onstarttracking[i]();
@@ -783,6 +793,9 @@ function Track(tracks, player, topviewplayer, color, position, autotrack, forwar
         }
 
         var bounds = this.attributejournals[id].bounds(frame);
+
+        
+        
         if (bounds['left'] == null)
         {
             return bounds['right'];
@@ -802,6 +815,7 @@ function Track(tracks, player, topviewplayer, color, position, autotrack, forwar
                 this.text = value;
                 var t = this.handle.children(".boundingboxtext");
                 t.html(this.text).show();
+                
             }
         }
 
@@ -967,15 +981,37 @@ function Track(tracks, player, topviewplayer, color, position, autotrack, forwar
         if (this.handle == null)
         {
             this.handle = $('<div class="boundingbox"><div class="boundingboxtext"></div></div>');
-            this.handle.css("border-color", this.color);
+            this.handle.css({"border-color": this.color, "visibility": "hidden"});
             var fill = $('<div class="fill"></div>').appendTo(this.handle);
             fill.css("background-color", this.color);
+            var circle = $('<div class="circle"></div>').appendTo(this.handle);
+            circle.css({"background-color": this.color, "visibility": "visible"});//, "display", 'block !important');
             this.player.handle.append(this.handle);
-
-            this.handle.children(".boundingboxtext").hide().css({
-                "border-color": this.color,
+            //this.handle.hide()
+            //circle.show()
+            /*
+             * INSERTED CODE TO DRAW A CLOSED CIRCLE AFTER THE BOUNDING BOX HAS BEEN COMPLETED
+           
+            console.log("CLICK TO DRAW 2");
+            var xcenter = (this.startx + xc) / 2;
+            var ycenter = (this.starty + yc) / 2;
+            
+            this.handle = $('<div class="circle"><div>')'
+            this.handle.css({
+                "top": ycenter + offset.top + "px",
+                "left": xcenter + offset.left + "px"})
+            this.container.append(this.handle);
+            this.handle.remove();
+            
+            
+             * END INSERTION TO DRAW CIRCLE
+             */
+            
+            //this.handle.children(".boundingboxtext").hide().css({
+            //    "border-color": this.color,
                 //"color": this.color
-                });
+            //    });
+            
 
             this.handle.resizable({
                 handles: "n,w,s,e",
@@ -1062,7 +1098,8 @@ function Track(tracks, player, topviewplayer, color, position, autotrack, forwar
             return;
         }
 
-        this.handle.show();
+        //this.handle.show();
+        
         
         if (position.occluded)
         {
@@ -1207,6 +1244,8 @@ function Track(tracks, player, topviewplayer, color, position, autotrack, forwar
         {
             return "";
         }
+        console.log("Label in serialize: " + this.label);
+        console.log("ID in serialize: " + this.id);
         var str = "[" + this.label + "," + this.id + "," + this.done + "," + this.journal.serialize() + ",{";
 
         var length = 0;
@@ -1378,7 +1417,7 @@ function AutoTrackManager(tracks, track, forwardtracker, bidirectionaltracker)
 {
     var me = this;
 
-    this.mintrackframes = 10;
+    this.mintrackframes = 1; //CHANGED from 10 to 2 to 1
     this.waittime = 2000;
     this.tracks = tracks;
     this.track = track;
@@ -1401,10 +1440,11 @@ function AutoTrackManager(tracks, track, forwardtracker, bidirectionaltracker)
 
     // Callback on completing of request
     this.requestcomplete = function(interval, data) {
+        
         console.log("TRACKING: Completed tracking between " + interval["start"] + " and " + interval["end"]);
         var start = interval["start"] != null ? interval["start"] + 1 : null;
         var end = interval["end"] != null ? interval["end"] - 1 : null;
-        this.track.clearbetweenframes(start, end);
+        //this.track.clearbetweenframes(start, end);
         this.track.recordtrackdata(data, start, end);
 
         // Remove from list of intervals
@@ -1412,13 +1452,26 @@ function AutoTrackManager(tracks, track, forwardtracker, bidirectionaltracker)
         if (i >= 0) {
             this.intervals.splice(i, 1);
         }
-
+       
         // Notify that we are done
         this.track.cleanuptracking();
         if (interval["callback"]) interval["callback"]();
+         // INSERTION
+        
+        console.log("setting hidden");
+        this.track.handle.children(".boundingboxtext").css({
+            "border-color": this.track.color,
+            "visibility" : "hidden"
+            //"color": this.color
+            });
+        
+        //END INSERTION
     }
 
     this.makerequest = function(interval) {
+        
+
+    
         var now = new Date();
         if (interval["canceled"]) {
             this.requestcomplete(interval, null);
@@ -1427,10 +1480,25 @@ function AutoTrackManager(tracks, track, forwardtracker, bidirectionaltracker)
             console.log("TRACKING: Linear interpolation between " + interval["start"] + " and " + interval["end"]);
             this.requestcomplete(interval, null);
         } else if ((now.getTime() - interval["time"].getTime()) > this.waittime) {
+
+            //INSERTION
+        
+            console.log("setting visible");
+            this.track.handle.children(".boundingboxtext").css({
+                "border-color": this.track.color,
+                "visibility" : "visible"
+                //"color": this.color
+                });
+            
+            //END INSERTION
+            
             // Wait time has passed
             console.log("TRACKING: Making request in " + interval["start"] + " and " + interval["end"]);
             var api = "";
             var args = [];
+            // INSERTION
+            this.forwardtracker = "Flash Tracking";
+            // END INSERTION
             if (interval["end"] == null) {
                 // Use the online trackers
                 if (this.forwardtracker == null) {
@@ -1450,15 +1518,19 @@ function AutoTrackManager(tracks, track, forwardtracker, bidirectionaltracker)
                 args = [this.track.player.job.jobid, interval["start"],
                     interval["end"], this.bidirectionaltracker, this.track.id];
             }
-
+            
+            
+                
             // Execute the request
             this.track.notifystarttracking();
+            
             interval["request"] = server_post(
                 api,
                 args,
                 this.tracks.serialize(),
                 function(data) {me.requestcomplete(interval, data);}
             );
+           
         } else {
             // Request time has not passed
             // This happens because the interval was altered in between
@@ -1473,6 +1545,7 @@ function AutoTrackManager(tracks, track, forwardtracker, bidirectionaltracker)
 
     // We will track this interval in the future
     this.schedulerequest = function(interval) {
+        
         setTimeout(function() {
             me.makerequest(interval);
         }, this.waittime + 10);
@@ -1584,7 +1657,8 @@ function Journal(start, blowradius)
     this.annotations = {};
     this.artificialright = null;
     this.artificialrightframe = null;
-    this.blowradius = blowradius;
+    //CHANGED
+    this.blowradius = 5;//blowradius;
     this.start = start;
 
     /*
@@ -1592,8 +1666,8 @@ function Journal(start, blowradius)
      */
     this.mark = function(frame, position) 
     {
-        console.log("Marking " + frame);
-
+        //console.log("Marking " + frame);
+        
         var newannotations = {};
 
         for (var i in this.annotations)
@@ -1610,10 +1684,20 @@ function Journal(start, blowradius)
             else if (i == this.start)
             {
                 console.log("Start would blow, so propagating");
+                //occ = this.annotations[i].occluded;
+                //out = this.annotations[i].outside;
+                //console.log(this.annotations[i])
+                //console.log(position.toString());
                 newannotations[i] = position;
+                //newannotations[i].occluded = occ;
+                //newannotations[i].outside = out;
+                //console.log(newannotations[i]);
+                //console.log(occ);
             }
             else
             {
+                //INSERT
+                //newannotations[i] = this.annotations[i];
                 console.log("Blowing out annotation at " + i);
             }
         }

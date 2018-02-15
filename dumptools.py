@@ -7,12 +7,14 @@ import numpy as np
 import merge
 from xml.etree import ElementTree
 from models import Path
+import models
 
 """
 This module dumps data as the desired file type.
 """
 
-DEFAULT_FORMAT = "id xtl ytl xbr ybr frame lost occluded generated label attributes"
+#DEFAULT_FORMAT = "id xtl ytl xbr ybr frame lost occluded generated label attributes"
+DEFAULT_FORMAT = "userid xtl ytl xbr ybr frame lost occluded generated label attributes"
 GROUND_PLANE_FORMAT = "id x y frame lost occluded generated label attributes"
 
 class Tracklet(object):
@@ -26,8 +28,15 @@ class Tracklet(object):
         self.userid = userid
 
     def bind(self):
+        i = 0
         for path in self.paths:
+            #print("BINDING")
             self.boxes = Path.bindattributes(path.attributes, self.boxes)
+            #if i == 0:
+            #if not len(self.boxes[10][11]) == 0:
+            #    print self.boxes[10][11][2].label.text
+                
+                #i += 1
 
 def getdata(video, domerge=True, mergemethod=None, mergethreshold=0.5,
         workers=None, groundplane=False):
@@ -39,6 +48,12 @@ def getdata(video, domerge=True, mergemethod=None, mergethreshold=0.5,
                                         threshold = mergethreshold,
                                         groundplane = groundplane):
             trackworkers = list(set(x.job.workerid for x in paths))
+            # INSERTION - if TV doesn't save properly, ignore it
+            if paths[0].label == None:
+                continue
+                
+            #print("USER ID: %d\tLABELID: %d"%(paths[0].userid, paths[0].labelid))
+            # END INSERTION
             tracklet = Tracklet(
                 paths[0].label.text,
                 paths[0].labelid,
@@ -48,6 +63,7 @@ def getdata(video, domerge=True, mergemethod=None, mergethreshold=0.5,
                 trackworkers,
                 {}
             )
+            #print(tracklet)
             response.append(tracklet)
     else:
         for segment in video.segments:
@@ -56,6 +72,10 @@ def getdata(video, domerge=True, mergemethod=None, mergethreshold=0.5,
                     continue
                 worker = job.workerid
                 for path in job.paths:
+                    # INSERTION - if TV doesn't save properly, ignore it
+                    if paths[0].label == None:
+                        continue
+                    # END INSERTION
                     tracklet = Tracklet(
                         path.label.text,
                         path.labelid,
@@ -88,7 +108,8 @@ def trackletdataforfield(tracklet, id, field):
     if field == "id":
         return id
     elif field == "userid":
-        return tracklet.userid
+        #print(type(tracklet.userid))
+        return int(tracklet.userid)
     elif field == "label":
         return tracklet.label
     elif field == "labelid":
@@ -99,7 +120,10 @@ def trackletdataforfield(tracklet, id, field):
 # Will return either a string or a list in the case of box attributes
 def boxdataforfield(box, velocity, field):
     try:
-        return getattr(box, field)
+        toret = getattr(box, field)
+        #if field == 'attributes' and not len(toret) == 0:
+        #    print toret
+        return toret#getattr(box, field)
     except AttributeError:
         if field == "x":
             return box.xbr
@@ -237,7 +261,12 @@ def dumptext(file, data, groundplane, fields):
             f.write("\"")
         elif type(d) is list:
             [printdata(x, f) for x in d]
-
+        elif type(d) is models.Attribute:
+            f.write("\"")
+            f.write(d.text)
+            f.write("\"")
+            f.write(" ")
+            
     hidelost = "lost" not in fields
     for id, track in enumerate(data):
         for box in track.boxes:
@@ -252,7 +281,8 @@ def dumptext(file, data, groundplane, fields):
                 printdata(d, file)
                 file.write(" ")
             file.write("\n")
-
+    print file.name
+    
 def dumplabelme(file, data, slug, folder):
     file.write("<annotation>")
     file.write("<folder>{0}</folder>".format(folder))

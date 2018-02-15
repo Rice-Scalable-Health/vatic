@@ -119,6 +119,7 @@ function ui_setup(job)
     $("<option>").appendTo("#forwardtrackingselect").attr("value", "none").text("None").attr("selected",true);
     for (var i in job.onlinetrackers) {
         $("<option>").appendTo("#forwardtrackingselect").attr("value", job.onlinetrackers[i]).text(job.onlinetrackers[i]);
+        console.log("Option: " + job.onlinetrackers[i]);
     }
     //if (job.onlinetrackers.length > 0) {
     //    $("#forwardtrackingselect").val(job.onlinetrackers[0]);
@@ -354,6 +355,36 @@ function ui_setupbuttons(job, player, tracks)
         var visible = !$(this).attr("checked");
         tracks.visible(visible);
 
+        // INSERTION
+        var csstext = "";
+        if (visible)
+        {
+            //$(".boundingboxtext").show();
+            eventlog("hideboxes", "Boxes are visible");
+            csstext = "visible";
+        }
+        else
+        {
+            //$(".boundingboxtext").hide();
+            eventlog("hideboxes", "Boxes are invisible");
+            csstext = "hidden";
+        }
+
+        for (var track in tracks)
+        {
+            track.handle.children(".boundingbox").css({
+                //"border-color": t.color,
+                "visibility" : csstext
+                //"color": this.color
+            });
+            track.handle.children(".circle").css({
+                //"border-color": t.color,
+                "visibility" : "visible"
+                //"color": this.color
+            });
+        }
+        // END INSERTION
+        /*
         if (visible)
         {
             eventlog("hideboxes", "Boxes are visible");
@@ -361,20 +392,34 @@ function ui_setupbuttons(job, player, tracks)
         else
         {
             eventlog("hideboxes", "Boxes are invisible");
-        }
+        }*/
     });
 
     $("#annotateoptionshideboxtext").button().click(function() {
         var visible = !$(this).attr("checked");
-
+        
+        // INSERTION
+        var csstext = "";
         if (visible)
         {
-            $(".boundingboxtext").show();
+            //$(".boundingboxtext").show();
+            csstext = "visible";
         }
         else
         {
-            $(".boundingboxtext").hide();
+            //$(".boundingboxtext").hide();
+            csstext = "hidden";
         }
+
+        for (var track in tracks)
+        {
+            track.handle.children(".boundingboxtext").css({
+                //"border-color": t.color,
+                "visibility" : csstext
+                //"color": this.color
+            });
+        }
+        // END INSERTION
     });
 }
 
@@ -382,8 +427,10 @@ function ui_setupkeyboardshortcuts(shortcutmanager, job, player)
 {
     function skipcallback(skip) {
         return function() {
-            if(ui_disabled) return;
+            //console.log("SKIPPING FRAMES: " + skip);
+            //if(ui_disabled) return;
             if (skip != 0) {
+                console.log("SKIPPING FRAMES: " + skip);
                 player.pause();
                 player.displace(skip);
                 ui_snaptokeyframe(job, player);
@@ -407,14 +454,28 @@ function ui_setupkeyboardshortcuts(shortcutmanager, job, player)
         if(ui_disabled) return;
         $("#annotateoptionshideboxes").click();
     });
-    shortcutmanager.addshortcut([68],
-        skipcallback(job.skip > 0 ? -job.skip : -10));
-    shortcutmanager.addshortcut([70],
-        skipcallback(job.skip > 0 ? job.skip : 10));
-    shortcutmanager.addshortcut([86],
+    console.log("SETTING UP KEYBOARD SHORTCUTS");
+    console.log("SKIP: " + job.skip);
+    job.skip = 1;
+    console.log("NEW SKIP: " + job.skip);
+    //changed to s forward 10 and a backward 10
+    shortcutmanager.addshortcut([65],
+        //skipcallback(job.skip > 0 ? -job.skip : -10));
+        skipcallback(-10));
+    shortcutmanager.addshortcut([83],
+        //skipcallback(job.skip > 0 ? job.skip : 10));
+        skipcallback(10));
+    //changed from v forward and d back to x forward and z back
+    shortcutmanager.addshortcut([88],
         skipcallback(job.skip > 0 ? job.skip : 1));
-    shortcutmanager.addshortcut([67],
+    shortcutmanager.addshortcut([90],
         skipcallback(job.skip > 0 ? -job.skip : -1));
+    //
+    
+    // INSERTION
+    
+    
+    // END INSERTION
 }
 
 function ui_canresize(job)
@@ -518,6 +579,7 @@ function ui_setupclickskip(job, player, tracks, objectui)
 
 function ui_loadprevious(job, objectui)
 {
+    console.log("LOADING PREVIOUS");
     var overlay = $('<div id="turkic_overlay"></div>').appendTo("#container");
     var note = $("<div id='submitdialog'>One moment...</div>").appendTo("#container");
 
