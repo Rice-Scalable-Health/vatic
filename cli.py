@@ -329,6 +329,8 @@ class load(LoadCommand):
             if not stopframe:
                 stopframe = video.totalframes - 1
             for start in range(startframe, stopframe, args.length):
+                # subtracted 2 from the first term in the min of stop so that the stopframe
+                # given an overlap of 0, will run exactly "arg.length" frames
                 stop = min(start + args.length + args.overlap + 1,
                            stopframe)
                 segment = Segment(start = start,

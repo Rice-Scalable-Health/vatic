@@ -308,7 +308,10 @@ def savejob(id, tracks):
     # Update neigboring segments
     video = job.segment.video
     prevseg, nextseg = video.getsegmentneighbors(job.segment)
+    # Inserted to prevent overwriting of labels
     prevseg = None
+    #nextseg = None
+    # End insertion
     mergesegments = [s for s in [prevseg, job.segment, nextseg] if s is not None]
     updatesegments = [s for s in [prevseg, nextseg] if s is not None]
 
@@ -332,6 +335,8 @@ def savejob(id, tracks):
     for label, userid, boxes in labeledboxes:
         frames = sorted([box.frame for box in boxes])
         for segment in updatesegments:
+            print("SEG START: " + str(segment.start))
+            print("SEG STOP: " + str(segment.stop))
             for job in segment.jobs:
                 path = Path()
                 path.label = label
@@ -345,6 +350,7 @@ def savejob(id, tracks):
                             addedbox = True
 
                 # Some segments and paths might not overlap
+                
                 if addedbox:
                     # Add in first frame if it's missing
                     if (frames[0] < segment.start < frames[-1]

@@ -279,8 +279,8 @@ function TrackCollection(player, topviewplayer, job)
     this.tracks = [];
     this.autotrack = false;
     // INSERTION
-    this.forwardtracker = "Flash Tracking";
-    //this.forwardtracker = null;
+    //this.forwardtracker = "Flash Tracking";
+    this.forwardtracker = null;
     // END INSERTION
     this.bidirectionaltracker = null;
 
@@ -480,7 +480,7 @@ function Track(tracks, player, topviewplayer, color, position, autotrack, forwar
 
     this.tracks = tracks;
     //CHANGED
-    this.journal = new Journal(player.job.start, 5);//player.job.blowradius);
+    this.journal = new Journal(player.job.start, 1);//player.job.blowradius);
     this.attributejournals = {};
     this.label = null;
     this.id = null;
@@ -495,8 +495,8 @@ function Track(tracks, player, topviewplayer, color, position, autotrack, forwar
     this.offset = 0;
     this.autotrack = autotrack;
     // INSERTION
-    this.autotrackmanager = new AutoTrackManager(this.tracks, this, "Flash Tracking", null);//bidirectionaltracker);
-    //this.autotrackmanager = new AutoTrackManager(this.tracks, this, forwardtracker, bidirectionaltracker);
+    //this.autotrackmanager = new AutoTrackManager(this.tracks, this, "Flash Tracking", null);//bidirectionaltracker);
+    this.autotrackmanager = new AutoTrackManager(this.tracks, this, forwardtracker, bidirectionaltracker);
     // END INSERTION
 
     this.onmouseover = [];
@@ -765,7 +765,8 @@ function Track(tracks, player, topviewplayer, color, position, autotrack, forwar
     }
 
     this.setattribute = function(id, value)
-    {
+    {   
+        //console.log(this.attributejournals);
         var journal = this.attributejournals[id];
         journal.mark(this.player.frame, value);
         //journal.artificialright = journal.rightmost();
@@ -789,18 +790,16 @@ function Track(tracks, player, topviewplayer, color, position, autotrack, forwar
     {
         if (this.attributejournals[id] == null)
         {
-            return false;
+           return false;
         }
 
         var bounds = this.attributejournals[id].bounds(frame);
-
-        
         
         if (bounds['left'] == null)
         {
             return bounds['right'];
         }
-
+        
         return bounds['left'];
     }
 
@@ -1259,7 +1258,7 @@ function Track(tracks, player, topviewplayer, color, position, autotrack, forwar
         {
             str = str.substr(0, str.length - 1);
         }
-
+        //console.log(str)
         return str += "}]";
     }
 
@@ -1298,7 +1297,7 @@ function Track(tracks, player, topviewplayer, color, position, autotrack, forwar
         {
             return bounds['right'];
         }
-
+        
         var fdiff = bounds['rightframe'] - bounds['leftframe'];
         var xtlr = (bounds['right'].xtl - bounds['left'].xtl) / fdiff;
         var ytlr = (bounds['right'].ytl - bounds['left'].ytl) / fdiff;
@@ -1482,7 +1481,7 @@ function AutoTrackManager(tracks, track, forwardtracker, bidirectionaltracker)
         } else if ((now.getTime() - interval["time"].getTime()) > this.waittime) {
 
             //INSERTION
-        
+            
             console.log("setting visible");
             this.track.handle.children(".boundingboxtext").css({
                 "border-color": this.track.color,
@@ -1497,7 +1496,7 @@ function AutoTrackManager(tracks, track, forwardtracker, bidirectionaltracker)
             var api = "";
             var args = [];
             // INSERTION
-            this.forwardtracker = "Flash Tracking";
+            //this.forwardtracker = "Flash Tracking";
             // END INSERTION
             if (interval["end"] == null) {
                 // Use the online trackers
@@ -1658,7 +1657,7 @@ function Journal(start, blowradius)
     this.artificialright = null;
     this.artificialrightframe = null;
     //CHANGED
-    this.blowradius = 5;//blowradius;
+    this.blowradius = 1;//blowradius;
     this.start = start;
 
     /*
@@ -1666,12 +1665,13 @@ function Journal(start, blowradius)
      */
     this.mark = function(frame, position) 
     {
-        //console.log("Marking " + frame);
-        
+        //console.log("Marking " + frame);// + " Position " + position);
+        //console.log(this.annotations)
         var newannotations = {};
 
         for (var i in this.annotations)
         {
+            //console.log("Generated the position?: " + position.generated);
             if (Math.abs(i - frame) >= this.blowradius)
             {
                 newannotations[i] = this.annotations[i];
@@ -1824,13 +1824,17 @@ function Journal(start, blowradius)
 
     this.bounds = function(frame)
     {
+        //console.log(this.annotations[frame]);
         if (this.annotations[frame])
         {
             var item = this.annotations[frame];
+            //console.log("Item")
+            //console.log(item);
+            //console.log(frame);
             return {'left': item,
                     'leftframe': frame,
                     'right': item,
-                    'rightframe': frame};
+                    'rightframe': frame};            
         }
 
         var left = null;

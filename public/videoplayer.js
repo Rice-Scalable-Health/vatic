@@ -13,6 +13,7 @@ function VideoPlayer(handle, job)
     this.paused = true;
     this.fps = 30;
     this.playdelta = 1;
+    this.labelframepause = false;
 
     this.onplay = []; 
     this.onpause = []; 
@@ -26,6 +27,7 @@ function VideoPlayer(handle, job)
         if (this.paused)
         {
             this.play();
+            
         }
         else
         {
@@ -42,9 +44,29 @@ function VideoPlayer(handle, job)
         {
             console.log("Playing...");
             this.paused = false;
+            
             this.interval = window.setInterval(function() {
                 if (me.frame >= me.job.stop)
                 {
+                    me.pause();
+                }
+                // pause at start/end and frame to label
+                /*
+                else if ((me.frame/(me.job.contextframes/2)) % 2 == 1 && !me.labelframepause)
+                {
+                    me.labelframepause = true;
+                    console.log("Frame :" + me.frame);
+                    console.log("Contextframes: " + me.job.contextframes);
+                    //pause at frame to label
+                    me.pause();
+                }
+                */
+                //pause at start and end, use keyboard shortcuts to return to frame to label
+                else if (me.frame%me.job.contextframes == me.job.contextframes-1 && !me.labelframepause) {
+                    me.labelframepause = true;
+                    console.log("Frame :" + me.frame);
+                    //console.log("Attribute: " + me.job.track)
+                    //pause at start and end of segment
                     me.pause();
                 }
                 else
@@ -55,6 +77,7 @@ function VideoPlayer(handle, job)
 
             this._callback(this.onplay);
         }
+        
     }
 
     /*
@@ -98,7 +121,7 @@ function VideoPlayer(handle, job)
     {
         this.frame = Math.min(this.frame, this.job.stop);
         this.frame = Math.max(this.frame, this.job.start);
-
+        this.labelframepause = false;
         var url = this.job.frameurl(this.frame);
         this.handle.css("background-image", "url('" + url + "')");
 

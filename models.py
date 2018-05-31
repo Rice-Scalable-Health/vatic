@@ -46,7 +46,7 @@ class Video(turkic.database.Base):
     def getframepath(cls, frame, base = None):
         l1 = frame / 10000
         l2 = frame / 100
-        path = "{0}/{1}/{2}.jpg".format(l1, l2, frame)
+        path = "{0}/{1}/{2}.png".format(l1, l2, frame)
         if base is not None:
             path = "{0}/{1}".format(base, path)
         return path

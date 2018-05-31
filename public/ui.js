@@ -429,12 +429,45 @@ function ui_setupkeyboardshortcuts(shortcutmanager, job, player)
         return function() {
             //console.log("SKIPPING FRAMES: " + skip);
             //if(ui_disabled) return;
-            if (skip != 0) {
-                console.log("SKIPPING FRAMES: " + skip);
+            console.log("IN SKIP CALLBACK");
+            console.log(skip);
+            if (Math.abs(skip) == 180) {
+                console.log("SKIP TO KEY FRAME");
+                //n = ceil(player.frame/job.contextframes) - 1;
+                var k = Math.floor(player.frame/(job.contextframes/2));
+                //console.log("Player frame: " + player.frame);
+                //console.log("k: " + k);
+                //console.log("Non-floor k: " + player.frame/(job.contextframes/2));
+                var change = 2;
+                if (k % 2 == 0) {
+                    change = 1;
+                }
+                var sign = 1;
+                if (skip < 0) {
+                    sign = -1;
+                    if (change == 2 && (player.frame/(job.contextframes/2)) % 2 > 1) {
+                        change = 0;
+                    }
+                }
+                k += change * sign;
+                var nextframe = k * job.contextframes/2;
+                console.log("Next frame: " + nextframe);
+                
+                var skipframes = nextframe - player.frame;
+                //job.contextframes;
+                //console.log("SKIPPING FRAMES: " + skipframes);
+                player.pause();
+                player.displace(skipframes);
+                ui_snaptokeyframe(job, player);
+            }
+            else if (skip != 0) {
+                console.log("NORMAL SKIP");
+                //console.log("SKIPPING FRAMES: " + skip);
                 player.pause();
                 player.displace(skip);
                 ui_snaptokeyframe(job, player);
             }
+            
         }
     }
 
@@ -470,6 +503,10 @@ function ui_setupkeyboardshortcuts(shortcutmanager, job, player)
         skipcallback(job.skip > 0 ? job.skip : 1));
     shortcutmanager.addshortcut([90],
         skipcallback(job.skip > 0 ? -job.skip : -1));
+    //q is previous frame to label, w is next frame to label
+    //the numbers don't mean anything significant, just a placeholder to indicate skip to frame to label
+    shortcutmanager.addshortcut([87], skipcallback(180));
+    shortcutmanager.addshortcut([81], skipcallback(-180));
     //
     
     // INSERTION

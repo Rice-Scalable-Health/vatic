@@ -21,12 +21,15 @@ function Job(data)
     this.multiobjecttrackers = [];
     this.pointmode = null;
     this.attributes = null;
+    this.contextframes = 20; //20 frames of context - 10 frames before and 10 frames after the frame to be labeled for context
     this.frameurl = function(i)
     {
         folder1 = parseInt(Math.floor(i / 100));
         folder2 = parseInt(Math.floor(i / 10000));
+        //return "frames/" + me.slug + 
+        //    "/" + folder2 + "/" + folder1 + "/" + parseInt(i) + ".jpg";
         return "frames/" + me.slug + 
-            "/" + folder2 + "/" + folder1 + "/" + parseInt(i) + ".jpg";
+            "/" + folder2 + "/" + folder1 + "/" + parseInt(i) + ".png";
     }
 }
 
@@ -35,13 +38,13 @@ function job_import(data)
     var job = new Job();
     job.slug = data["slug"];
     job.start = parseInt(data["start"]);
-    job.stop = parseInt(data["stop"]);
+    job.stop = parseInt(data["stop"]); //Subtracted 2 here to prevent overlap. May need to delete that once overlap param is set to zero at the start. Or tweak code in cli.py to set overlap, or use --overlap -2 as the parameter
     job.width = parseInt(data["width"]);
     job.height = parseInt(data["height"]);
     job.skip = parseInt(data["skip"]);
     job.perobject = parseFloat(data["perobject"]);
     job.completion = parseFloat(data["completion"]);
-    job.blowradius = 5;//parseInt(data["blowradius"]);
+    job.blowradius = 5;//5;//parseInt(data["blowradius"]);
     job.jobid = parseInt(data["jobid"]);
     job.labels = data["labels"];
     job.attributes = data["attributes"];

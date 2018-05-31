@@ -947,11 +947,11 @@ function TrackObject(job, player, activecontainer, donecontainer, color, copypas
                         {
                             if (j != attributeid)
                             {
+                                //console.log("Set atrribute " + j + " False");
                                 me.track.setattribute(j, false);
                             }
                         }
                     }
-                    
                     me.track.setattribute(attributeid, true);
                     // END INSERTION
 
@@ -1089,11 +1089,16 @@ function TrackObject(job, player, activecontainer, donecontainer, color, copypas
         //var total = 0;
         //var temp;
         //END INSERTION
+        //console.log(this.job.attributes);
+        
+        //set all to false unless one was checked true in this frame already
+
         for (var i in this.job.attributes[this.track.label])
         {   
             //console.log("Attribute order: " + i);
             //total += 1;
             //temp = i;
+            //console.log(this.track.estimateattribute(i, this.player.frame)[0]);
             if (!this.track.estimateattribute(i, this.player.frame))
             {
                 //console.log(this.track.estimateattribute(i, this.player.frame);
@@ -1110,10 +1115,12 @@ function TrackObject(job, player, activecontainer, donecontainer, color, copypas
                 //INSERTION
                 //ind = i;
                 //END INSERTION
-                
+
                 $("#trackobject" + this.trueid + "attribute" + i).attr("checked", true);
-                
+
+                ///*
                 var tag = this.job.attributes[this.track.label][i];
+                //if (false)
                 if (tag == "Gaze" || tag == "Uncertain")
                 {
                     //INSERTION
@@ -1136,6 +1143,7 @@ function TrackObject(job, player, activecontainer, donecontainer, color, copypas
                         //"color": this.color
                     });
                 }
+               //*/
                 // NEED TO FIGURE OUT HOW TO ACCESS THE ARRTIBUTE like this:
                 /*
                 console.log("  Attributes:");
